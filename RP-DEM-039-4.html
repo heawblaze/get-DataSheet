@@ -1,0 +1,1421 @@
+<html>
+<head>
+<title>RP-DEM-039 | แสดงผล</title>
+<meta charset="UTF-8">
+<meta name="viewport" content='width=720'>
+
+<link rel="stylesheet" type="text/css" href="https://thaipet.co.th/CSS/TPI-EML.css">
+<link rel="stylesheet" href="https://unpkg.com/flatpickr/dist/flatpickr.min.css">
+
+
+<script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1.1','packages':['table','corechart','calendar']}]}"></script>
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script src="https://apis.google.com/js/auth.js"></script>
+<script src="https://unpkg.com/flatpickr"></script>
+<script src="../../JS/tpi-app-gtoken.js" type="text/javascript"></script>	<!---ปรับ--->
+
+<script type="text/javascript"> 
+	google.charts.load("current", {packages:["calendar"]});
+	google.charts.load("current", {packages:["table"]});
+	google.charts.load("current", {packages:["corechart"]});
+</script>
+
+<script type="text/javascript"> 
+
+//////////////////////////////////////////////////////////// Step 1 : Set Value //////////////////////////////////////////////////////
+	
+	
+	
+var docId_039List   = [ "1uAEiphonPW8O_BBXmNhUV9wHqK91CuczFLPll3o4AcU" ]; 
+var tabId_039List   = [ "1453358434" ];
+	
+var index_039List   = 5;
+	
+var dataSheet_039List;
+	
+var documentId_039  = [];
+//var documentId_013  = [ "18VLEnyarsyT-B7Gazq62a4ehhxQTczHRnNLLM_r85HM" ];
+	
+var tabId_039       = [ "1679618439" ];	
+//var tabId_013       = [ "0" ];	
+	
+//////////////////////////////////////////////////////////// Step 1 : Set Value //////////////////////////////////////////////////////
+	
+//จำนวนเอกสาร
+var numOfSheet         = getURLParameter('numOfSheet');
+
+//////////////////	
+	
+//dataTable ของ FM-DBM-039
+var indexLast_039;
+var dataSheet_039;
+	
+//var indexLast_013     = documentId_013.length-1;
+//var dataSheet_013     = new Array(indexLast_013);
+		
+var count_039         = 0;	
+//var count_013	      = 0;
+	
+var dataTable_039;
+//var dataTable_013;		 
+	
+var dataTableSub_039;
+//var dataTableSub_013;
+	
+var dataTableQDate_039;
+
+var dataTableQProduct_039;	
+	
+var dataTableQMachine_039;
+//var dataTableQMachine_013;
+	
+var dataTableQProblem_039;
+
+var indexRow_Main039   = [];
+//var indexRow_Main013   = [];	
+
+var queryProduct;
+var queryMachine;
+var queryProblem;
+	
+var productURL = getURLParameter('queryProduct');
+var machineURL = getURLParameter('queryMachine');
+	
+var calendar_startQuery;
+var calendar_endQuery;
+	
+var dataTableCurrent039;
+	
+var calendarTable;	
+	
+/////////////////////////////////////////
+	
+//จัดการ Date
+var startDate    = getURLParameter('startDate');
+var endDate      = getURLParameter('endDate');
+	
+//var startDate = "01092017";                // ใช้ทดสอบ
+//var endDate   = "05092017";                // ใช้ทดสอบ
+	
+var lastMonth    = getURLParameter('lastMonth');
+var numberOfWeek = getURLParameter('numberOfWeek');
+	
+if (!lastMonth){ lastMonth = 1; }
+if (!numberOfWeek){ numberOfWeek = 2; }
+	
+var today    = new Date();
+var lastDate ;  
+	
+var filteredDate   ;  
+var endfilteredDate;  
+	
+//////////////////////////////////////////	
+
+//เปลี่ยนแปรง Date Query
+function replaceDateQuery(dateString,hour){
+		
+	day   = Number(dateString.slice(0, 2));
+	month = Number(dateString.slice(2, 4))-1;
+	year  = Number(dateString.slice(-4));
+		
+return new Date(year,month ,day,hour,0,0);
+	
+}
+	
+//////////////////////////////////////////
+	
+//เลือกวันที่ปริมาณข้อมุล
+function chooseLastDate(){
+	
+    var currentDate  = new Date();
+	var currentMonth = parseInt(currentDate.getMonth());
+	var currentYear  = currentDate.getFullYear();
+	var firstDayOfCurrentMonth = new Date(currentYear, currentMonth,1,0,0,0);
+		
+	console.log("วันแรกของเดือน :"+dateToString(firstDayOfCurrentMonth));
+	console.log("ย้อนหลัง : "+lastMonth+" เดือน");
+		
+		//ย้อนไปปีที่แล้ว
+	if((currentMonth-lastMonth)<0){
+		lastDate = new Date(currentYear-1,12+(currentMonth-lastMonth),1,0,0,0); 
+		}
+		//ปีปัจจุบัน
+	else { 	lastDate = new Date(currentYear,(currentMonth-lastMonth),1,0,0,0); 	}
+	console.log("วันที่ย้อนหลัง : "+dateToString(lastDate));
+	
+	
+}
+	
+//////////////////////////////////////////
+	
+//รูปแบบที่ 1 
+	if(startDate){
+		
+		console.log("แสดงรูปแบบที่ 1 (SE)");
+		console.log("******************************");	
+		
+		filteredDate    = replaceDateQuery(startDate,8);
+		
+		if(endDate){ endfilteredDate = replaceDateQuery(endDate,8);	}
+		else{ endfilteredDate = new Date();	}
+		
+		lastDate        =  filteredDate;
+		today           =  endfilteredDate;
+
+		console.log("วันเริ่ม   : "+ dateToString(filteredDate).slice(0,-6));
+		console.log("วันสิ้นสุด : "+ dateToString(endfilteredDate).slice(0,-6));
+		
+	}
+	
+	//รูปแบบที่ 2
+	else{
+	
+		console.log("แสดงรูปแบบที่ 2 (MW)");
+		console.log("******************************");	
+		
+		chooseLastDate();    //หา LastDate
+		
+		endfilteredDate = today;    
+		filteredDate    = new Date(today.getTime() - numberOfWeek * 7 * 24 * 60 * 60 * 1000);
+
+}
+
+/////////////////////////////////////////////////// Step 2 : Connect Google ////////////////////////////////////////////////////
+	
+var accesstoken;
+	
+function init(){
+		
+		setProcessLoading(20); 
+		checkToken(function (inToken){ 
+			accesstoken = inToken;
+			setProcessLoading(60); 
+			google.setOnLoadCallback(submitQuery());
+		});
+}
+	
+///////////////////////////////////////	
+	
+function submitQuery() {  
+				
+	//ดึงข้อมูล 039
+	var arrayNullColumns  = ['B'];
+	var arrayOrderColumns = [];
+	var queryString = constructQueryString(arrayNullColumns,arrayOrderColumns);
+		
+	for(var i = 0 ; i< documentId_039.length; i++){
+ 
+		var queryLink  = getQueryConnect(documentId_039[i],tabId_039[i],1,queryString);
+		var querySheet = new google.visualization.Query(queryLink);
+		querySheet.send(connectSheet_039);
+		
+	}			  
+	  
+}
+	
+///////////////////////////////////////
+	
+//เชื่อมต่อ Sheet 039
+function connectSheet_039(response) {		
+	
+		if (response.isError()) { 
+			alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());	
+			return; 
+		} 
+		
+		//ดึงข้อมุล	
+		dataSheet_039[count_039] = response.getDataTable();		
+	  	setPage_Ready("<DEM-039>",dataSheet_039[count_039],count_039);
+		count_039+=1;	
+	
+}	
+
+////////////////////////////////////////// Step 2.1 : Function ( Set DataTable - First ) ////////////////////////////////////////
+
+//ประมวลผล
+function setPage_Ready(sheet,dataTable,count){
+	
+	var rowValue = dataTable.getNumberOfRows();
+	console.log("จำนวนแถวของ "+sheet+" ที่ "+(count+1)+" : "+rowValue);
+	
+	//เมื่อข้อมูลโหลดเสร็จ
+	if( dataSheet_039[indexLast_039] ){
+	
+		//ทำการเชื่อมต่อ 039
+		for(var i in documentId_039){
+			if(i==0){ dataTable_039 = dataSheet_039[i];	}
+			else {    dataTable_039 = concatDataTable(dataTable_039,dataSheet_039[i]);  }
+		}
+		
+		//ทำการเชื่อมต่อ 013
+		//for(var i in documentId_013){
+		//	if(i==0){ dataTable_013 = dataSheet_013[i];	}
+		//	else {    dataTable_013 = concatDataTable(dataTable_013,dataSheet_013[i]);  }
+		//}
+					
+			
+			setProcessLoading(70); 
+			
+			//แสดง
+			console.log("ระบบโหลดข้อมูล "+sheet+" เสร็จเรียบร้อย");
+			//console.log("ระบบโหลดข้อมูล <DEM-013> เสร็จเรียบร้อย");
+			console.log("****************************** (ทั้งหมด)");
+			console.log("จำนวนแถวของ DEM-039 ทั้งหมด : "+dataTable_039.getNumberOfRows());
+			//console.log("จำนวนแถวของ DEM-013 ทั้งหมด : "+dataTable_013.getNumberOfRows());
+			
+			///////////////
+		
+			//เปลี่ยนแปลง dataTable	    	
+			dataTableSub_039 = setDataTable_039(dataTable_039);
+		    //dataTableSub_013 = setDataTable_013(dataTable_013);	
+			setProcessLoading(80); 
+			
+			initCalendarPopUp();
+			setDisplay_queryDate();
+		
+			///////////////	
+								
+			setProcessLoading(100); 
+			
+			///////////////
+									
+			//จบกระบวนการ
+			document.getElementById("areaDisplay_Charts").style.display = "none";
+				
+	}
+	
+}
+
+/////////////////////////////////////////////////// Step 2.2 : Function Display ////////////////////////////////////////////////
+	
+//Set ข้อมุลจากการ Query Date
+function setDisplay_queryDate(){
+		
+	//เลือกแถวตาม Date		
+	//dataTableQDate_013 = chooseRow_queryDate(dataTableSub_013);   
+	dataTableQDate_039 = chooseRow_queryDate(dataTableSub_039);					
+		
+	setDropDown_List('selectProblemId',dataTableQDate_039,"หัวข้อปัญหาคุณภาพ");
+		
+	//set display
+	setDisplay_Charts();		
+		
+	drawTable(dataTableQDate_039, "chartTable1");
+	var ColNameObj = initIndexDataTable(dataTableQDate_039);
+	displayLast_Data(dataTableQDate_039,ColNameObj['วันที่'],"lastData039");    
+		
+}
+	
+/////////////////////////////////////
+	
+//เลือกปัญหา
+function onchangeProblemList(keyword){
+	
+	var g = document.getElementById("selectProblemId");
+	queryProblem = g.options[g.selectedIndex].value;
+		
+	//set display
+	setDisplay_Charts();
+		
+	if( queryProblem ){			
+		
+		dataTableQProblem_039 = chooseRow_ByValue(dataTableQDate_039 ,"หัวข้อปัญหาคุณภาพ",queryProblem);
+
+		setDropDown_List("selectMachineId",dataTableQProblem_039,"เครื่องจักร");
+		drawTable(dataTableQProblem_039, "chartTable1");
+			//////////////
+		
+		var ColNameObj = initIndexDataTable(dataTableQProblem_039);
+		displayLast_Data(dataTableQProblem_039,ColNameObj['วันที่'],"lastData039");   	
+	}
+	else{	
+
+		cleanOptionsList("selectMachineId");
+		
+		var ColNameObj = initIndexDataTable(dataTableQDate_039);
+		displayLast_Data(dataTableQDate_039,ColNameObj['วันที่'],"lastData039");  
+		drawTable(dataTableQDate_039, "chartTable1");
+	} 
+		
+		
+}	
+	
+/////////////////////////////////////
+		
+function onchangeMachineList(keyword){
+
+	var e = document.getElementById("selectMachineId");
+	queryMachine = e.options[e.selectedIndex].value;
+		
+	//set การแสดงผล
+	setDisplay_Charts();
+		
+	if( queryMachine ){			
+		
+		dataTableQMachine_039 = chooseRow_ByValue(dataTableQProblem_039 ,"เครื่องจักร",queryMachine);
+
+		setDropDown_List("selectProductId",dataTableQMachine_039,"ชื่อสินค้า");
+		drawTable(dataTableQMachine_039, "chartTable1");
+			//////////////
+		
+		var ColNameObj = initIndexDataTable(dataTableQMachine_039);
+		displayLast_Data(dataTableQMachine_039,ColNameObj['วันที่'],"lastData039");   	
+	}
+	else{	
+
+		cleanOptionsList("selectProductId");
+		
+		var ColNameObj = initIndexDataTable(dataTableQProblem_039);
+		displayLast_Data(dataTableQProblem_039,ColNameObj['วันที่'],"lastData039");  
+		drawTable(dataTableQProblem_039, "chartTable1");
+	} 
+	
+}		
+	
+//เลือกแถวตาม Query Date
+function chooseRow_queryDate(inDataSet){
+	
+		var dataView   = new google.visualization.DataView(inDataSet);
+		var rowValue   = inDataSet.getNumberOfRows();
+		var ColNameObj = initIndexDataTable(inDataSet);
+		
+		var indexRow  = [];
+		
+		for (var i = 0; i < inDataSet.getNumberOfRows() ; i++) { 
+			
+			var dateOfRow = inDataSet.getValue(i,ColNameObj['วันที่']);
+			if(dateOfRow > filteredDate && dateOfRow <= endfilteredDate){
+				indexRow.push(i);
+			}
+		}
+		
+		dataView.setRows(indexRow);
+		var dataTable = dataView.toDataTable();
+		cleanOptionsList("selectMachineId");
+		return dataTable;
+}		
+	
+/////////////////////////////////////
+	
+//เลือกชื่อสินค้า
+function onchangeProductList(keyword){
+	
+	var e = document.getElementById("selectProductId");
+	queryProduct = e.options[e.selectedIndex].value;
+		
+	/////////////////////
+		
+	//set display
+	//setDisplay_Charts();
+		
+	if( queryProduct ){			
+		
+		dataTableQProduct_039 = chooseRow_ByValue( dataTableQMachine_039 ,"ชื่อสินค้า",queryProduct);
+
+		//setDropDown_List("selectMachineId",dataTableQProduct_039,"เครื่องจักร");
+		drawTable( dataTableQProduct_039, "chartTable1" );
+		//////////////
+		
+		var ColNameObj = initIndexDataTable( dataTableQProduct_039 );
+		displayLast_Data( dataTableQProduct_039,ColNameObj['วันที่'],"lastData039");   	
+	}
+	else{	
+
+		cleanOptionsList("selectProductId");
+			
+		//////////////		
+        setDropDown_List("selectProductId",dataTableQMachine_039,"ชื่อสินค้า");  
+		var ColNameObj = initIndexDataTable(dataTableQMachine_039);
+		displayLast_Data(dataTableQMachine_039,ColNameObj['วันที่'],"lastData039");  
+		drawTable(dataTableQMachine_039, "chartTable1");
+	} 
+		
+}		
+	
+/////////////////////////////////////
+	
+function setDataTable_039(inDataSet){	
+	
+		var dataView    = new google.visualization.DataView(inDataSet);
+		var lastColumn  = dataView.getNumberOfColumns();
+		var ColNameObj  = initIndexDataTable(inDataSet);
+		
+		//////////////////
+		
+		//index Column ที่ต้องการ
+		var indexColumn = [];		
+	
+		for (var i = 0; i < inDataSet.getNumberOfColumns() ; i++) { 
+			indexColumn.push(i);
+		}
+							
+		indexColumn.push({calc:setStyleDate_039, type:'datetime', label:'วันที่'});		
+	    indexColumn.push({calc:setSortDate_039,  type:'number', label:'sort'});
+	
+    	
+		dataView.setColumns(indexColumn);
+		var dataTable = dataView.toDataTable(); 
+	
+	    //เลือกแถวที่ต้องการ
+		var dataView  = new google.visualization.DataView(dataTable);
+		dataView.setRows(indexRow_Main039);
+		
+		var dataTable = dataView.toDataTable();
+		
+		var ColNameObj = initIndexDataTable(dataTable);
+		
+		dataTable.sort([{column: ColNameObj['sort'],  desc: false }]);	
+	    
+											
+		return dataTable;	
+}
+	
+					
+/////////////////////////////////////	
+	
+//จัดการเรื่อง Date ของ 039
+function setStyleDate_039(dataTable,i){
+	
+		var ColNameObj = initIndexDataTable(dataTable);		
+		var stringDate = dataTable.getValue(i,ColNameObj['วันและเวลาเริ่มต้น']);			
+
+		var dateOfRow  = changeValueToDate(stringDate,"039");			
+	
+		indexRow_Main039.push(i);
+
+		return dateOfRow;
+}	
+
+/////////////////////////////////////	
+	
+//จัดการเรื่อง Sort Date ของ 039
+function setSortDate_039(dataTable,i){
+	
+		var ColNameObj = initIndexDataTable(dataTable);
+		var stringDate = dataTable.getValue(i,ColNameObj['วันและเวลาเริ่มต้น']);		
+		
+		var dateOfRow  = Number(changeValueToDate(stringDate,"039"));
+				
+		return dateOfRow;
+}	
+	
+/////////////////////////////////////////////////// Step 2.3 : Set Display ////////////////////////////////////////////////
+	
+	function setDisplay_Charts(){
+	
+		if(queryProduct && queryMachine){
+			document.getElementById("areaDisplay_Charts").style.display = "block";
+		}
+		else{
+			document.getElementById("areaDisplay_Charts").style.display = "none";
+		}
+}	
+		
+//////////////////////////////// Step 3 : Set Date | Event Change Date | Event Change List *** //////////////////////////////////
+
+	//function เลือกเวลา
+	function initCalendarPopUp(){
+
+		if(calendar_startQuery) calendar_startQuery.destroy();
+		var optional_startQuery = {
+			defaultDate: filteredDate,
+			minDate    : lastDate,
+			maxDate    : today,
+			enableTime : true,
+			time_24hr  : true,
+								
+			altInput   : false,
+			dateFormat : "F j, Y h:i K",
+								
+			onClose	: function(selectedDates) { 
+				filteredDate = new Date(selectedDates);
+				
+				numOfChart   = []; 
+				queryProduct = "";
+				queryMachine = "";
+				
+				setDisplay_queryDate();
+				console.log("******************************");
+
+			}
+		};
+		calendar_startQuery = new flatpickr(document.getElementById("startquerydatetime"),optional_startQuery);
+		
+		/////////////////////
+		
+		if(calendar_endQuery) calendar_endQuery.destroy();
+		var optional_endQuery = {
+			defaultDate: endfilteredDate,
+			minDate    : lastDate,
+			maxDate    : today,
+			enableTime : true,
+			time_24hr  : true,
+
+			altInput   : true,
+			dateFormat : "F j, Y h:i K",
+			
+			onClose	: function(selectedDates) { 
+				endfilteredDate = new Date(selectedDates); 
+				
+				numOfChart   = []; 
+				queryProduct = "";
+				queryMachine = "";
+				
+				setDisplay_queryDate();
+				console.log("******************************");
+							
+			}
+		};
+		calendar_endQuery = new flatpickr(document.getElementById("endquerydatetime"),optional_endQuery);
+
+	}
+	
+	
+//////////////////////////////////////////////////// Step 2.3 : set DropDown //////////////////////////////////////////////////
+	
+//อัพเดต List 
+function setDropDown_List(id,inDataSet,keyword){
+		
+		var ColNameObj = initIndexDataTable(inDataSet);
+		var list = inDataSet.getDistinctValues(ColNameObj[keyword]);
+		
+		console.log(list);
+
+		cleanOptionsList(id);
+		updateOptionsList(id,list);
+}
+	
+///////////////////////////////////////////// 
+	
+//ลบแถวที่ไม่ต้องการตาม column ด้วย keyword
+function chooseRow_ByValue(inDataSet,colName,keyword){
+	
+		var dataView   = new google.visualization.DataView(inDataSet);
+		var rowValue   = inDataSet.getNumberOfRows();
+		var ColNameObj = initIndexDataTable(inDataSet);
+		
+		var indexRow  = [];
+		
+		for (var i = 0; i < inDataSet.getNumberOfRows() ; i++) { 
+			
+			var typeData = inDataSet.getValue(i,ColNameObj[colName]);
+			if(typeData==keyword){
+				indexRow.push(i);
+			}
+		}
+		
+		dataView.setRows(indexRow);
+		var dataTable = dataView.toDataTable();
+		
+		return dataTable;
+}	
+	
+	
+//////////////////////////////////////////////////////// Step 4 : Function Draw Chart ////////////////////////////////////////////	
+	//วาด Chart Table
+    function drawTable(inDataSet,id) {        
+		var data  = new google.visualization.DataTable(inDataSet.toJSON());
+		var table = new google.visualization.Table(document.getElementById(id));
+		table.draw(inDataSet, {showRowNumber: true, allowHtml: true, width: '95%'});
+}	
+	
+	
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+										////////////////////   Get List - Document Id   ////////////////////
+
+function init_List(){
+	
+		setProcessLoading(10);
+		checkToken(function (inToken){ 
+			accesstoken = inToken;
+			google.setOnLoadCallback(submitQuery_List());
+		});
+}
+	
+	///////////////////////////////////////
+	
+	
+	function submitQuery_List(){
+
+		//ราชื่อไอดีเอกสาร 039
+		var arrayNullColumns  = ['A'];
+		var arrayOrderColumns = [];
+		var queryString = constructQueryString(arrayNullColumns,arrayOrderColumns);
+		
+		for(var i=0 ; i< docId_039List.length ; i++){
+ 
+			var queryLink  = getQueryConnect(docId_039List[i],tabId_039List[i],1,queryString);
+			var querySheet = new google.visualization.Query(queryLink);
+			querySheet.send(connectSheet_039List);
+		}		
+	}
+	
+	///////////////////////////////////////
+	
+	
+	//เชื่อมต่อ List 039
+	function connectSheet_039List(response) {		
+	
+		if (response.isError()) { 
+			alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());	
+			return; 
+		} 
+		
+		//ดึงข้อมุล	
+		dataSheet_039List = response.getDataTable();		
+	  	setPage_List("documentId 039",dataSheet_039List);
+	
+	}
+	
+	///////////////////////////////////////
+
+	function setPage_List(sheet,dataTable){
+		
+		var rowValue = dataTable.getNumberOfRows();
+		console.log("จำนวนเอกสารทั้งหมดของ "+sheet+" : "+rowValue);
+		
+		if(dataSheet_039List){
+		
+			documentId_039 = setList_DocumentId(dataSheet_039List,index_039List);			
+			
+			setNumOfSheet();    
+						  
+			//////////////
+			
+			indexLast_039  = documentId_039.length-1;
+			dataSheet_039  = new Array(indexLast_039);			
+			
+			//////////////
+			
+			//แสดง		
+			console.log("รายชื่อเอกสาร 039 ที่คุณเลือก : "+documentId_039.length);				
+			console.log(documentId_039);		
+	
+			//console.log("รายชื่อเอกสาร 013 ที่คุณเลือก : "+documentId_013.length);
+			//console.log(documentId_013);
+			//////////////
+
+			init(); 
+		
+		}
+	}
+	
+	///////////////////////////////////////
+	
+	//set ไอดีเอกสาร
+	function setList_DocumentId(dataTable,index){
+		
+		var list = [];
+		for (i = 0; i < dataTable.getNumberOfRows() ; i++) { 
+			list.push(dataTable.getValue(i,index));
+		}
+		
+		return list;
+	}
+	
+	///////////////////////////////////////
+	
+	//set จำนวนเอกสาร
+	function setNumOfSheet(){
+	
+		if(numOfSheet){ 
+				
+			numOfSheet = numOfSheet.toLowerCase();
+				
+			if(numOfSheet !="all"){
+				var number = -1 * Number(numOfSheet);
+				documentId_039 = documentId_039.slice(number);  
+			}
+		}
+			
+		else{
+			documentId_039 = documentId_039.slice(-3);  
+		}
+	}
+		
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+										////////////////////   Function - Library   ////////////////////
+	
+	 
+	//สร้าง link สำหรับ query
+	function getQueryConnect(documentId,tabId,rowHeader,queryString){
+			
+			var queryLink = 'https://docs.google.com/spreadsheets/d/' + documentId + '/gviz/tq?'+
+							'gid=' + tabId + 
+							'&headers='+rowHeader+
+							'&tq=' + queryString + 
+							'&access_token=' + encodeURIComponent(accesstoken);
+			return queryLink;
+			
+		}
+		
+		///////////////////////////////////////
+		
+		function constructQueryString(arrayNullColumns,arrayOrderColumns){
+			
+			var queryString = "Select * WHERE ";
+	
+			for (var i in arrayNullColumns)  { 	 queryString  +=  arrayNullColumns[i] + " IS NOT NULL AND " ;  	}
+			if (arrayNullColumns.length > 0) {   queryString  =  queryString.slice(0,-4);     }
+			
+			if(arrayOrderColumns.length > 0) {
+			
+				queryString= queryString + "ORDER BY ";
+				
+				for (var i in arrayOrderColumns)  {    queryString += arrayOrderColumns[i] + ", " ;	}
+				queryString = queryString.slice(0,-2);
+				
+				queryString  += " DESC";
+			}
+			
+			return encodeURIComponent(queryString);
+			
+		 }
+	
+		 
+		 ///////////////////////////////////////
+		 
+		 //เชื่อมต่อ DataTable ของแต่ละ Sheet
+		 function concatDataTable(mainDataTable,subDataTable){
+			
+			var json1 = JSON.parse(mainDataTable.toJSON());
+			var json2 = JSON.parse(subDataTable.toJSON());
+			var mergedRows = json1.rows.concat(json2.rows);
+			
+			json1.rows    = mergedRows;
+			return  new google.visualization.DataTable(json1);
+	
+		 }
+		 
+		 //////////////////////////////////////
+		 
+		 //เปลี่ยนแปลงข้อความเป็นวันที่
+		 function changeValueToDate(stringDate,sheet){
+			
+			var dateOfRow = stringToDate(stringDate);
+			
+			//ปรับวันที่ (039)
+			//if(sheet=="039"){
+			//	if(dateOfRow.getHours() < 9) { dateOfRow.setDate(dateOfRow.getDate()+1); }
+			//}
+			 
+			//ปรับวันที่ (039)
+			//if(sheet=="013"){
+			//	if(dateOfRow.getHours() < 9) { dateOfRow.setDate(dateOfRow.getDate()+1); }
+			//}
+	
+	
+			return dateOfRow;
+		 }
+		 
+		 /////////////////////////////////////////////
+		
+		//เปลี่ยน srting เป็น date
+		function stringToDate(stringDate){
+			
+			var splitDate = stringDate.split(" ");
+			
+			var fullDateStr = splitDate[0].split("/");
+			var year  = fullDateStr[2];
+			var month = Number(fullDateStr[1]);
+			var day   = fullDateStr[0];
+					
+			var time  = splitDate[1].replace(".",":");
+			var fullTimeStr = time.split(":");
+			
+			var hour   = Number(fullTimeStr[0]);
+			var minute = Number(fullTimeStr[1]);
+			
+			var dateValue = new Date(year,month-1,day,hour ,minute,0);
+			
+			return  dateValue;
+		
+		}
+		//////////////////////////////////////	  
+		
+		function initIndexDataTable(inDataSet){
+			
+			var ColumnNameObj = {};
+			
+			for (i = 0; i < inDataSet.getNumberOfColumns(); i++) { 			
+				ColumnNameObj[inDataSet.getColumnLabel(i)] = i;
+			}	
+			return ColumnNameObj;
+		}
+		
+		//////////////////////////////////////	
+		
+		//อัพเดต List
+		function updateOptionsList(id,arrayValue){
+	
+			//var options = inDataSet.getDistinctValues(indexColumn);
+			var options = arrayValue.sort();
+			var select  = document.getElementById(id);
+			
+			var listValue   = document.createElement('option');
+			listValue.value = "";
+			select.appendChild(listValue);
+			
+			
+			for (i = 0; i < options.length; i++){ 
+				var opt   = document.createElement('option');
+				opt.value = options[i];
+				opt.innerHTML = options[i];
+				select.appendChild(opt);
+			}
+		}
+		
+		//////////////////////////////////////	
+	
+		// clean List
+		function cleanOptionsList(id){
+			
+			var selectObj    = document.getElementById(id);
+			var selectParentNode = selectObj.parentNode;
+			var newSelectObj = selectObj.cloneNode(false); 
+			
+			selectParentNode.replaceChild(newSelectObj, selectObj);
+			
+
+			return newSelectObj;
+		}
+		
+		//////////////////////////////////////
+		
+		//แสดงข้อมุลวันที่ล่าสุด
+		function displayLast_Data(inDataSet,indexColumn,id){
+		
+			var minMaxValue = inDataSet.getColumnRange(indexColumn); //หาวันที่ที่มากที่สุดเเละน้อยที่สุด
+			var maxDate     = minMaxValue["max"];			
+			var minDate     = minMaxValue["min"];
+			
+			var dateValue   = "ไม่มีข้อมูล";
+			if(maxDate){  dateValue = "วันที่ "+dateToString(minDate)+" น. - วันที่ "+dateToString(maxDate)+" น."; }
+			
+			document.getElementById("displayRecordTime").style.display = "block";
+			document.getElementById(id).innerHTML = dateValue;
+		
+			//console.log("ข้อมูลล่าสุดของชุดข้อมูลที่คุณเลือก "+id+" : "+dateValue)
+			
+		}
+		
+		//////////////////////////////////////	
+		
+		//เปลี่ยน Date ให้เป็นแบที่เข้าใจง่าย
+		
+        function dateToString(date){
+  
+       var strDate  = ("0"+date.getDate()).slice(-2)+"/" +("0"+parseInt(date.getMonth()+1)).slice(-2)+"/"+(date.getFullYear());//-100+43);
+       strDate += " "+("0"+date.getHours()).slice(-2)+":"+("0"+date.getMinutes()).slice(-2);   
+       return strDate;
+  
+}
+		
+		//////////////////////////////////////
+		
+		function getURLParameter(name) {
+			return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+		}
+		
+		//////////////////////////////////////
+		
+		function numberWithCommas(x) {
+			return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+		}
+		
+		//////////////////////////////////////
+		
+		function printArray(arrayValue,dimension,headValue){
+	  
+			if(!headValue) { headValue="อเรย์ที่"; }
+	  
+			//แสดงอเรย์ 1 มิติ
+			if(!dimension || dimension==1){
+				for(var i in arrayValue){  
+					console.log(headValue+" "+i+" : "+arrayValue[i]);  
+				}
+			}
+				  
+			//แสดงอเรย์ 2 มิติ
+			else{
+			
+				for(var i in arrayValue){ 
+					console.log("******** แถวที่ : "+i+" ********"); 
+					for(var j in arrayValue[i]){  console.log(headValue+" ("+i+","+j+") : "+arrayValue[i][j]);  }
+				}
+			}
+		}
+		
+		/////////////////////////////
+		
+		//เอา Value ที่ซ้ำออก
+		function uniqueArray(arrayValue){
+			return arrayValue.filter(function (x, i, a) { return a.indexOf(x) == i; });
+		}
+		
+		/////////////////////////////
+		
+		//ดึงข้อมูลจาก column ที่ต้องการ จาก อเรย์
+		function getArray_MultiColumn(array2D,index1D){   // array2d array1d 
+		 
+		  var data = array2D.map(
+			function(el){
+			  var arrayTemp = [];
+			  for(var In in index1D){   arrayTemp.push(el[index1D[In]]); }      
+			  return arrayTemp;
+			  
+			});
+		  
+		  return data;
+		
+		}
+		
+		/////////////////////////////
+		
+		var countLesson = 0;
+		//แสดงการรูปแบบการโหลดข้อมูล
+		function displayLesson_Style(){
+			countLesson +=1;
+			if(countLesson%2==0){  document.getElementById("lessonArea").style.display   = "none"; }
+			else{ 	document.getElementById("lessonArea").style.display   = "block"; }
+		
+		}
+		
+		/////////////////////////////
+		
+		var widthLoading   = 1;
+		var percentLoading = 1;
+		
+		//set แสดงผลการประมวลผล
+		function setProcessLoading(percent) {
+			
+			percentLoading = percent;
+			var id = setInterval(frame, 50);
+			
+			//////////////
+			
+			function frame() {
+				
+				if (widthLoading >= percentLoading) {
+					clearInterval(id);
+				} else {
+					widthLoading++; 
+					document.getElementById("displayLoading").style.width = widthLoading + '%'; 
+					if(widthLoading==100){
+						document.getElementById("displayLoading").style.display = "none";	
+					}
+					
+				}
+			}
+		}
+
+
+
+</script>
+
+</head>
+
+<style type="text/css">
+<!--
+	body{
+		font:"Times New Roman", Times, serif;
+	}
+	.TPI-EML-TITLE {
+		font-family: Arial, Helvetica, sans-serif;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: bold;
+		color:  #CD2126;
+		vertical-align: central;
+	}
+	
+	.TPI-EML-TITLEHINT {
+		font-family: Arial, Helvetica, sans-serif;
+		font-size: 11px;
+		font-style: normal;
+		font-weight: normal;
+		color: #A9A9A9;
+		vertical-align: central;
+	}
+
+	.TPI-EML-SECTIONBODY {
+		font-family: Arial, Helvetica, sans-serif;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: normal;
+		color: #333;
+		vertical-align: central;
+	}
+	input[type=text]{
+		border: 1px solid #E1E1E1;
+		height: 20px;
+		width:180px;
+		margin-top:2px;
+	
+	}
+	.queryStyle-Left {
+		font-family: Arial, Helvetica, sans-serif;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: normal;
+		color: #333;
+		vertical-align: central;
+		
+		width:425px; 
+		text-align:left; 
+		margin-left:50px;
+		margin-top:10px; 
+		float:left;
+	}
+	.queryStyle-Right {
+		font-family: Arial, Helvetica, sans-serif;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: normal;
+		color: #333;
+		vertical-align: central;
+		
+		width:150px;
+		text-align:left; 
+		margin-top:10px;  
+		margin-left:5px;
+		float:left; 
+	}
+
+	.displayHead {
+		
+		width:600px; 
+		height:10px; 
+		margin-left:50px; 
+		text-align:left;
+		padding-top:10px;
+		border-top:1px solid #D2D2D2;
+
+		font-family: Arial, Helvetica, sans-serif;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: normal;
+		color: #333;
+		vertical-align: central;
+		
+	}
+	
+	.displayMassage {
+		font-family: Arial, Helvetica, sans-serif;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: bold;
+		color:  #CD2126;
+		vertical-align: central;
+	
+	}
+	
+	.displayChart{
+		width:600px; 
+		height:550px; 
+		margin-left:50px;
+		padding-bottom:0px;
+		
+	}
+	
+	.google-visualization-tooltip {
+		font-size:12px;
+		text-align:left;
+		border: solid 1px #bdbdbd;
+		border-radius: 2px;
+		background-color: white;
+		position: absolute;
+		box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.6);
+		-moz-box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.6);
+		-webkit-box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.6);
+		font-family: arial;
+	}
+
+	.google-visualization-tooltip div {
+ 		 padding:10px;
+	}
+	
+	.loadButton {
+    	color: #333;
+		font-size:12px;
+		padding: 5px 10px 5px 10px;
+		background: #FFFFFF;
+    	border: 2px solid #e7e7e7;
+	}
+	
+	#displayRecordTime{
+		width:600px; 
+		font-size:12px; 
+		font-weight:bold;
+		color:#333333; 
+		text-align:left; 
+		margin-left:50px; 
+		padding-top:20px; 
+		float:left;
+	}
+
+-->
+</style>
+
+<body onLoad="init_List();">
+
+<div id="mainArea"  style=" width:700px; text-align:center; margin: auto; border:  1px solid #D2D2D2;  ">
+	
+    <!-- พื้นที่ Loading -->
+    <div style="width:700px; margin:auto;">
+    	<div id="displayLoading" style="width: 1%; height:3px; background: #CD2126;"></div>
+    </div>
+    
+    <!--พื้นที่ Logo--> 
+	<div id="logoThaipet">
+    	<img src="https://www.thaipet.co.th/Images/Email-Header.jpg" alt="Quotation Header" width="700" height="100" >
+    </div>
+
+    <!-- พื้นที่ Subject -->
+    <div id="displayConnectGoogle" style="height:30px; margin-top:20px; padding-bottom:20px;  ">
+		<label id="diaplayMassage" class="TPI-EML-TITLE" style="font-size:16px;">รายงานการปรับค่าคอนดิชันของเครื่องจักร</label>
+        <label id="diaplayMassage" class="TPI-EML-TITLE" style="font-size:15px;">(Machine Condition Adjustment Report)</label>
+      	<br />
+		<label id="docCodeMassage" style="font-size:11px; color:#333333;">RP-DEM-039-PLC </label>
+	  	<label id="docCodeMassage" style="font-size:13px; color:#333333;">| รายงานการปรับค่าคอนดิชันของเครื่องจักรเทคโนโลยีเป่าขึ้นรูปผ่านระบบ 
+		</label>
+		<label id="docCodeMassage" style="font-size:11px; color:#333333;"> PLC</label>
+		<br />
+		<label id="docCodeMassage" style="font-size:11px; color:#333333;">ISSUE 00/00/180822</label>
+		
+    </div>
+
+	<div id="loginGoogleSheet" align="right" style="width:32px;	height:32px; float: right;">
+		<img id="authorize-button" style="visibility: hidden; cursor: pointer;"   src="https://www.thaipet.co.th/Images/icon-tpi-lock.png" width="32" height="32">
+	</div>
+    
+    
+    <!--พื้นที่สำหรับ Query------------->
+  	<div id="areaQuery" style= "width:700px; height:210px; margin: auto;"  > 
+      		
+	<div class="TPI-EML-TITLE" style="float:left; font-size:14px; margin-left:50px; margin-top:10px;" >
+        	รูปแบบการจัดทำรายงาน (Report Parameters)
+   	</div>
+        
+      	<!-- query วันที่ -->
+   	<div class="queryStyle-Left">วันและเวลาเริ่มต้น <br/>
+			<label style="font-size:10px;">(Date and Time Start)</label><br/>
+          	<input name="startquerydatetime" type="text" id="startquerydatetime" style="float:left;"/>
+   	</div>
+      	<div class="queryStyle-Right">วันและเวลาสิ้นสุด <br/>
+        	<label style="font-size:10px;">(Date and Time End)</label><br/>
+         	<input name="endquerydatetime" type="text" id="endquerydatetime" style="float:left;">
+   	</div>
+	 
+     	<!-- แสดง Chart -->   
+   	 	<div id="chartCalendar" style="width:600px; margin-left:50px; padding-top:5px; padding-bottom:5px;  float:left;">
+     	</div> 
+
+      	<!-- query อื่นๆ --> 
+		<div class="queryStyle-Left">ชื่อปัญหาคุณภาพ
+        	<label style="font-size:10px;">(Quality Problem Name)</label><br/>
+         	<select name="selectProductId" id="selectProblemId" style=" width:150px; margin-top:4px;" onChange="onchangeProblemList();"></select>
+	  	</div>
+		
+	  	<div class="queryStyle-Left">ชื่อสินค้า 
+        	<label style="font-size:10px;">(Product Name)</label><br/>
+         	<select name="selectProductId" id="selectProductId" style=" width:401px; margin-top:4px;" onChange="onchangeProductList();"></select>
+	  	</div>
+        
+      	<div class="queryStyle-Right">เครื่องจักร 
+        	<label style="font-size:10px;">(Machine No.)</label><br />
+         	<select id="selectMachineId" name="selectMachineId" style="margin-top:4px;" onChange="onchangeMachineList();"></select>
+	  	</div>
+        
+      	<!-- query อื่นๆ -->
+        <!----------------------------->
+        <!-- พื้นที่สำหรับ Display Record -->
+		<div id="displayRecordTime">
+            
+            ข้อมูลล่าสุดของ <label style="font-size:11px;">FM-DEM-039</label> ที่เลือก : 
+            <label id="lastData039" style="font-weight:normal;"></label>
+            
+    	</div>
+
+    </div>
+    
+    <div id="chartTable1"></div>
+ 	<div id="areaDisplay" style=" width:700px; min-height:200px; margin: auto; float:left;">
+		<div id="areaDisplay_Charts" style="display:none; width:700px;">
+        
+    	<!--------- Table --------->
+			
+		<div id="chartTable1"></div>
+	    <div id="chartTable2"></div>
+       
+   	  	<!---------<div id="chartTable2"></div>--------->		
+        
+        </div>
+        
+    </div>	
+    <div id="showLogoBottom" >
+		<img src="https://www.thaipet.co.th/Images/Email-Footer.jpg" alt="Quotation Footer" width="700" height="100">
+	</div>
+	
+	<div style="width:700px; height:15px; font-size:10px; color:#FFFFFF; font-weight:bold; text-align:right; background:#CD2126;" >
+        <div onClick="displayLesson_Style();" style="width:660px; margin:auto; cursor:pointer;">
+        	วิธีการใช้งาน
+        </div>
+    </div>
+    
+    <div id="lessonArea" class="TPI-EML-SECTIONBODY" style="display:none; width:700px; text-align:left; margin:auto;" >
+    
+		<div  style="width:600px; margin:auto;">
+                
+			<!----- ส่วนที่ 1 ----->
+          	<div style="width:600px; height:60px; padding-top:25px; border-bottom:1px solid #D2D2D2; ">
+            
+				<label class="TPI-EML-TITLE"  style="font-size:18px">วิธีการใช้งาน RP-DEM-039-PLC</label>
+				<br />
+             	<label style="font-size:14px">รูปแบบการโหลดข้อมูล</label>
+          
+          	</div>
+                   
+         	<!----- ส่วนที่ 2 ----->
+          	<div style="width:600px; height:280px; padding-top:20px; padding-bottom:20px;">
+            
+				<!----- ส่วนที่ 2.1 ----->
+				<div style="width:285px; height:280px; float:left; padding-left:0px;">
+            
+              		<label class="TPI-EML-TITLE" style=" font-size:12px;">
+                    	1. รูปแบบ SE (StartDate vs EndDate)
+              		</label><br />
+                	- ระบุวันที่เริ่มของข้อมูลทั้งหมดที่ต้องการโหลด<br />
+                	- ระบุวันสิ้นสุดของข้อมูลทั้งหมดที่ต้องการโหลด<br /><br />
+              		
+                	<div style=" width:265px; height:35px; padding-left:15px; padding-top:5px; padding-bottom:5px; background:#FFFFCC;">
+                 
+						<label style=" font-weight:bold;">รูปแบบ</label><br />
+                 		<label class="TPI-EML-TITLE" style=" font-size:12px; font-weight:normal;">
+                    		?startDate=ddmmyyyy&amp;endDate=ddmmyyyy
+                 		</label>
+					</div>
+              
+             		<table class="TPI-EML-SECTIONBODY" width="260" border="0" cellspacing="0" style="padding-top:5px; padding-bottom:10px;">
+              			<tr>
+                			<td width="34" style="font-weight:bold;">dd</td>
+                            <td width="60">คือ วันที่</td>
+                			<td width="160">ตั้งแต่เลข 01 - 31</td>
+              			</tr>
+              			<tr>
+                			<td style="font-weight:bold;">mm</td>
+                			<td>คือ เดือน</td>
+                			<td>ตั้งแต่เลข 01 - 12</td>
+              			</tr>
+              			<tr>
+                			<td style="font-weight:bold;" >yyyy</td>
+                			<td>คือ  ปี ค.ศ.</td>
+                			<td>เช่น 2016, 2017</td>
+              			</tr>
+             		</table>
+             
+             		<label style="font-weight:bold;">ตัวอย่าง</label><br />
+                	startDate= <label style="font-weight:bold;">01092017</label><br />
+                	endDate  = <label style="font-weight:bold;">10092017</label><br /><br />
+       
+             		จะได้ข้อมูลทั้งหมด<br />
+             		- ช่วงวันที่  
+             		<label style="font-weight:bold;">01 ก.ย. 2017 08:00น.</label>
+             		ถึง 
+             		<label style="font-weight:bold;">10 ก.ย. 2017 08:00น.</label>
+             
+				</div>	
+            
+				<!----- ส่วนที่ 2.2 ----->
+				<div style="width:279px; height:280px; font-size:12px; float:right; padding-left:20px; border-left:1px solid #D2D2D2; ">
+              
+              		<label class="TPI-EML-TITLE" style=" font-size:12px;">
+                    	2. รูปแบบ  MW (LastMonth vs numOfWeek)
+              		</label><br /> 
+					- ระบุจำนวนเดือนย้อนหลังข้อมูลทั้งหมดที่ต้องการโหลด<br />
+                	- ระบุจำนวนสัปดาห์ย้อนหลังในการแสดงผลเริ่มต้น    <br /><br />
+              
+					<div style=" width:260px; height:35px; background:#FFFFCC; padding-left:15px; padding-top:5px; padding-bottom:5px;">
+                 
+						<label style=" font-weight:bold;">รูปแบบ</label><br />
+                 		<label class="TPI-EML-TITLE" style="font-size:12px; font-weight:normal;">
+							?lastMonth=m&amp;numberOfWeek=w
+                 		</label>
+                 
+					</div> 
+             
+             		<table class="TPI-EML-SECTIONBODY" width="144" border="0" cellspacing="0" style="padding-top:5px; padding-bottom:10px;">
+              			<tr>
+                			<td width="21" style="font-weight:bold;">m</td>
+                			<td width="119">คือ  จำนวนเดือน</td>
+              			</tr>
+              			<tr>
+                			<td style="font-weight:bold;">w</td>
+                			<td>คือ จำนวนสัปดาห์ </td>
+              			</tr>
+             		</table>
+             
+			 		<label style="font-weight:bold;">ตัวอย่าง</label><br />
+                	lastMonth =    <label style="font-weight:bold;">1</label><br />
+                	numberOfWeek = <label style="font-weight:bold;">2</label>
+                	ถ้า  
+               		<label style="font-weight:bold;">Today</label>
+               		เท่ากับ 
+               		<label style="font-weight:bold;">10 ก.ย. 2017 08:30น.</label>
+               		<br /><br />
+               
+               		จะได้ข้อมูลทั้งหมด<br />
+               		-  ตั้งแต่วันที่ 
+               		<label style="font-weight:bold;">1 ส.ค. 2017 08:00น.</label>
+               		ถึง 
+               		<label style="font-weight:bold;">Today</label><br />
+               		- จะแสดงผลข้อมูลเริ่มต้น <label style="font-weight:bold;">2 สัปดาห์ย้อนหลัง</label>
+                      
+ 				</div>
+    
+			</div>
+          
+			<!----- ส่วนที่ 3 ----->
+          	<div style="width:600px; height:200px; margin-left:0px; padding-top:20px; padding-bottom:30px; border-top:1px solid #D2D2D2;">
+            
+				<label class="TPI-EML-TITLE" style=" font-size:12px;">
+                	การเติม URL ตามรูปแบบการโหลดข้อมูล
+				</label><br />
+            	1.เลือกรูปแบบที่คุณต้องการ<br />
+            	2.เพิ่มรูปแบบตามหลัง <label style="font-weight:bold;">URL (.../RP-DEM-039-PLC.html)</label>
+            	<br /><br />
+ 
+            	<div style=" width:365px; height:65px; background:#FFFFCC; padding-left:15px; padding-top:5px; padding-bottom:5px;">
+               
+					<label style=" font-weight:bold;">รูปแบบ</label><br />
+               		<label class="TPI-EML-TITLE" style="font-size:12px; font-weight:normal;">
+						.../RP-DEM-039-PLC.html?startDate=ddmmyyyy&amp;endDate=ddmmyyyy
+               		</label>
+               
+					<br />และ<br />
+
+					<label class="TPI-EML-TITLE" style="font-size:12px; font-weight:normal;">
+						.../RP-DEM-039-PLC.html?lastMonth=m&amp;numberOfWeek=w
+					</label>
+               
+				</div><br /> 
+            
+            	<label class="TPI-EML-TITLE" style=" font-size:12px;"> หมายเหตุ </label><br />      
+
+           		-ถ้า <label style="font-weight:bold;">ไม่ได้เลือก</label> รูปแบบใดระบบจะแสดงเป็นรูปแบบ <label style="font-weight:bold;">MW</label> คือ <br />
+            	<label style="font-weight:bold;">lastMonth=1 (โหลดข้อมูลย้อนหลัง 1 เดือน) และ  numberOfWeek=2 (แสดงผล 2สัปดาห์ย้อนหลัง)</label>
+            
+			</div>
+          
+		</div>
+       
+	</div>
+    
+    <!--------------------- ส่วนที่ล่าง ---------------------->
+ 
+</div>
+</body>
+</html>
